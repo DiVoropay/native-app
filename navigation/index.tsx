@@ -8,17 +8,18 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { ColorSchemeName, Pressable } from 'react-native';
+import { ColorSchemeName, Pressable, Text } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
 import TodayScreen from '../screens/TodayScreen';
 import TrackedDaysScreen from '../screens/TrackedDaysScreen';
+import { selectToday } from '../store/slices/todaySlice';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
+import secondsToDigitalClock from '../utils/secondsToDigitalClock';
 import LinkingConfiguration from './LinkingConfiguration';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -57,6 +58,7 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();
+  const { time } = useSelector(selectToday);
 
   return (
     <BottomTab.Navigator
@@ -89,10 +91,19 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="TrackedDays"
         component={TrackedDaysScreen}
-        options={{
+        options={({ navigation }: RootTabScreenProps<'TrackedDays'>) => ({
           title: 'Tracked Days',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-        }}
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate('Today')}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+              })}>
+              <Text style={{marginRight: 10, fontSize: 18, fontWeight: 'bold'}}>{secondsToDigitalClock(time)}</Text>
+            </Pressable>
+          ),
+        })}
       />
     </BottomTab.Navigator>
   );
