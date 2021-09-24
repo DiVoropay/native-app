@@ -154,6 +154,6 @@ const styles = StyleSheet.create({
   list: {
     // flex: 2,
     // justifyContent: "flex-start",
-    width: '100%',
+    width: 300,
   },
 });

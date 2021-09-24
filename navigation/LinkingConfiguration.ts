@@ -25,6 +25,11 @@ const linking: LinkingOptions<RootStackParamList> = {
               TrackedDaysScreen: 'tracked-days',
             },
           },
+          Summary: {
+            screens: {
+              SummaryScreen: 'summary',
+            },
+          },
         },
       },
       Modal: 'modal',

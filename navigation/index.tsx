@@ -15,6 +15,7 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
+import SummaryScreen from '../screens/SummaryScreen';
 import TodayScreen from '../screens/TodayScreen';
 import TrackedDaysScreen from '../screens/TrackedDaysScreen';
 import { selectToday } from '../store/slices/todaySlice';
@@ -71,7 +72,7 @@ function BottomTabNavigator() {
         component={TodayScreen}
         options={({ navigation }: RootTabScreenProps<'Today'>) => ({
           title: 'Today',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="tasks" color={color} />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
@@ -93,14 +94,31 @@ function BottomTabNavigator() {
         component={TrackedDaysScreen}
         options={({ navigation }: RootTabScreenProps<'TrackedDays'>) => ({
           title: 'Tracked Days',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="table" color={color} />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Today')}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
               })}>
-              <Text style={{marginRight: 10, fontSize: 18, fontWeight: 'bold'}}>{secondsToDigitalClock(time)}</Text>
+              <Text style={{marginRight: 10, fontSize: 18, fontWeight: 'bold', color: '#2cf'}}>Today: {secondsToDigitalClock(time)}</Text>
+            </Pressable>
+          ),
+        })}
+      />
+       <BottomTab.Screen
+        name="Summary"
+        component={SummaryScreen}
+        options={({ navigation }: RootTabScreenProps<'Summary'>) => ({
+          title: 'Summary',
+          tabBarIcon: ({ color }) => <TabBarIcon name="history" color={color} />,
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate('Today')}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+              })}>
+              <Text style={{marginRight: 10, fontSize: 18, fontWeight: 'bold', color: '#2cf'}}>Today: {secondsToDigitalClock(time)}</Text>
             </Pressable>
           ),
         })}

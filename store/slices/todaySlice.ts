@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppDispatch, AppThunk, RootState } from '../store';
 
@@ -19,7 +20,7 @@ export interface ITodayState {
   tasks: { id: ITask } | {};
 }
 
-const initialState: ITodayState = {
+let initialState: ITodayState = {
   currentCountTime: 0,
   time: 0,
   startTime: 0,
@@ -31,9 +32,33 @@ const initialState: ITodayState = {
   tasks: {},
 }
 
+const storeToday = async (value: ITodayState) => {
+  try {
+    const jsonValue = JSON.stringify(value)
+    await AsyncStorage.setItem('state-today', jsonValue)
+  } catch (e) {
+    // saving error
+  }
+}
+
+const getStoreToday = async () => {
+  try {
+    const jsonValue: string | null = await AsyncStorage.getItem('state-today')
+    if (jsonValue != null) {
+      initialState = JSON.parse(jsonValue);
+    }
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch(e) {
+    // saving error
+  }
+}
+
+// const localTodayState: ITodayState = JSON.parse(localStorage.getItem('state-today') || 'null');
+
+
 export const todaySlice = createSlice({
   name: 'today',
-  initialState,
+  initialState: initialState,
   reducers: {
     setTodayIsStarting: (state, action: PayloadAction<boolean>) => {
       state.isStarting = action.payload;
@@ -117,6 +142,10 @@ export const startTimerInterval = (data: any): AppThunk => async (
   dispatch(setTodayTimer(newTimer));
 };
 
-export const selectToday = (state: RootState) => state.today;
+export const selectToday = (state: RootState) => {
+  //localStorage.setItem( 'state-today', JSON.stringify(state.today));
+  storeToday(state.today);
+  return state.today;
+}
 
 export default todaySlice.reducer
