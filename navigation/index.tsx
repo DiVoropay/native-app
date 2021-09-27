@@ -7,9 +7,9 @@ import { FontAwesome } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { ColorSchemeName, Pressable, Text } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -18,16 +18,44 @@ import NotFoundScreen from '../screens/NotFoundScreen';
 import SummaryScreen from '../screens/SummaryScreen';
 import TodayScreen from '../screens/TodayScreen';
 import TrackedDaysScreen from '../screens/TrackedDaysScreen';
-import { selectToday } from '../store/slices/todaySlice';
+import { getAppStorageState, selectApp, setAppStorageState } from '../store/slices/appSlice';
+import { getTodayStorageState, selectToday, setTodayStorageState } from '../store/slices/todaySlice';
+import { getTrackedDaysStorageState, selectTrackedDays, setTrackedDaysStorageState } from '../store/slices/trackedDaysSlice';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import secondsToDigitalClock from '../utils/secondsToDigitalClock';
 import LinkingConfiguration from './LinkingConfiguration';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
+  const dispatch= useDispatch();
+
+  const appState = useSelector(selectApp);
+  const todayState = useSelector(selectToday);
+  const trackedDaysState = useSelector(selectTrackedDays);
+    
+  useEffect(() => {
+    dispatch(getAppStorageState());
+    dispatch(getTodayStorageState());
+    dispatch(getTrackedDaysStorageState());
+  },[]);
+
+  useEffect(() => {
+    dispatch(setAppStorageState(appState));
+  },[appState]);
+  
+  useEffect(() => {
+    dispatch(setTodayStorageState(todayState));
+  },[todayState]);
+
+  useEffect(() => {
+    dispatch(setTrackedDaysStorageState(trackedDaysState));
+  },[trackedDaysState]);
+
+
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+    >
       <RootNavigator />
     </NavigationContainer>
   );
@@ -60,13 +88,15 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();
   const { time } = useSelector(selectToday);
+  const { currentTab } = useSelector(selectApp);
 
   return (
     <BottomTab.Navigator
-      initialRouteName="Today"
+      initialRouteName={currentTab || "Today"}
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
-      }}>
+      }}
+    >
       <BottomTab.Screen
         name="Today"
         component={TodayScreen}
@@ -92,6 +122,7 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="TrackedDays"
         component={TrackedDaysScreen}
+        
         options={({ navigation }: RootTabScreenProps<'TrackedDays'>) => ({
           title: 'Tracked Days',
           tabBarIcon: ({ color }) => <TabBarIcon name="table" color={color} />,

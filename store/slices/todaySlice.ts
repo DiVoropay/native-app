@@ -44,17 +44,11 @@ const storeToday = async (value: ITodayState) => {
 const getStoreToday = async () => {
   try {
     const jsonValue: string | null = await AsyncStorage.getItem('state-today')
-    if (jsonValue != null) {
-      initialState = JSON.parse(jsonValue);
-    }
     return jsonValue != null ? JSON.parse(jsonValue) : null;
   } catch(e) {
     // saving error
   }
 }
-
-// const localTodayState: ITodayState = JSON.parse(localStorage.getItem('state-today') || 'null');
-
 
 export const todaySlice = createSlice({
   name: 'today',
@@ -64,7 +58,7 @@ export const todaySlice = createSlice({
       state.isStarting = action.payload;
     },
     setTodayIsStoping: (state, action: PayloadAction<boolean>) => {
-        state.isStoping = action.payload;
+      state.isStoping = action.payload;
     },
     setTodayIsPaused: (state, action: PayloadAction<boolean>) => {
       state.isPaused = action.payload;
@@ -89,6 +83,18 @@ export const todaySlice = createSlice({
     },
     setTodayTimer: (state, action: PayloadAction<any>) => {
       state.timer = action.payload
+    },
+
+    setAllTodayState: (state, action: PayloadAction<ITodayState>) => {
+      state.currentCountTime = action.payload.currentCountTime;
+      state.startTime = action.payload.startTime;
+      state.time = action.payload.time;
+      state.textTask = action.payload.textTask;
+      state.timer = action.payload.timer;
+      state.tasks = { ...state.tasks, ...action.payload.tasks };
+      state.isStarting = action.payload.isStarting;
+      state.isStoping = action.payload.isStoping;
+      state.isPaused = action.payload.isPaused;
     },
 
     startTodayTimer: (state) => {
@@ -129,22 +135,35 @@ export const {
   setTodayTasks,
   setTodayTimer,
 
+  setAllTodayState,
+
   startTodayTimer,
   stopTodayTimer,
   pauseTodayTimer,
   updateTodayTime,
 } = todaySlice.actions;
 
-export const startTimerInterval = (data: any): AppThunk => async (
+export const getTodayStorageState = (): AppThunk => async (
   dispatch,
 ) => {
-  const newTimer = setInterval(() => dispatch(updateTodayTime()), 1000);
+  getStoreToday()
+    .then(storageState => dispatch(setAllTodayState(storageState)));
+};
+
+export const setTodayStorageState = (state: ITodayState): AppThunk => async (
+  dispatch,
+) => {
+  storeToday(state);
+};
+
+export const startTimerInterval = (intervalInSeconds: number): AppThunk => async (
+  dispatch,
+) => {
+  const newTimer = setInterval(() => dispatch(updateTodayTime()), intervalInSeconds * 1000);
   dispatch(setTodayTimer(newTimer));
 };
 
 export const selectToday = (state: RootState) => {
-  //localStorage.setItem( 'state-today', JSON.stringify(state.today));
-  storeToday(state.today);
   return state.today;
 }
 

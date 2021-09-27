@@ -1,49 +1,44 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Text, View } from '../components/Themed';
 import TodoListItem from '../components/TodoListItem';
-import { selectTrackedDays } from '../store/slices/trackedDaysSlice';
+import { ITrackedDay, selectTrackedDays, setTrackedDays } from '../store/slices/trackedDaysSlice';
 import { RootTabScreenProps } from '../types';
 import secondsToDigitalClock from '../utils/secondsToDigitalClock';
+import DayItem from '../components/DayItem';
+import { setCurrentTab } from '../store/slices/appSlice';
 
 export default function TrackedDaysScreen({ navigation }: RootTabScreenProps<'TrackedDays'>) {
-  const { days } = useSelector(selectTrackedDays)
+  const dispatch = useDispatch();
+
+  const trackedDaysState = useSelector(selectTrackedDays)
+  const { days } = trackedDaysState;
+
+  const changeDay = (day: ITrackedDay) => {
+    console.log(day)
+    dispatch(setTrackedDays(day));
+  }
+
+  useEffect(() => {
+    dispatch(setCurrentTab('TrackedDays'));
+  })
 
   return (
     <View style={styles.container}>
-
       <View style={styles.list}>
         {Object.keys(days).length
           ? <FlatList
               data={Object.values(days)}
               keyExtractor={item => item.id.toString()}
               renderItem={({item}) =>
-                <>
-                  <Text style={styles.title}>
-                    Date: {new Date(item.date).toISOString().slice(0,10)}
-                  </Text>
-                  <Text>
-                    Time: {secondsToDigitalClock(item.totalTime)}
-                  </Text>
-                  <View style={styles.list}>
-                    {Object.keys(item.tasks).length
-                      ? <FlatList
-                          data={Object.values(item.tasks)}
-                          keyExtractor={item => item.id.toString()}
-                          renderItem={({item}) => 
-                            <TodoListItem task={item} updateTask={()=>{}} />
-                          }
-                        />
-                      : <Text>No tasks for today</Text>
-                    }
-                  </View>
-                  <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-                </>
+                <DayItem day={item} updateDay={changeDay} />
               }
             />
-          : <Text>No tasks for today</Text>
+          : <Text>No tracked days</Text>
         }
       </View>
     </View>

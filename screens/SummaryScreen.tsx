@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import TodoListItem from '../components/TodoListItem';
+import { setCurrentTab } from '../store/slices/appSlice';
 import { ITask } from '../store/slices/todaySlice';
 import { ITrackedDay, selectTrackedDays } from '../store/slices/trackedDaysSlice';
 import { RootTabScreenProps } from '../types';
@@ -16,6 +17,8 @@ interface SummaryDays {
 }
 
 export default function SummaryScreen({ navigation }: RootTabScreenProps<'TrackedDays'>) {
+  const dispatch = useDispatch();
+
   const { days } = useSelector(selectTrackedDays)
   const summaryData: SummaryDays = Object.values(days).reduce((summary: any, day: ITrackedDay) => {
     summary.totalTime += day.totalTime;
@@ -28,7 +31,11 @@ export default function SummaryScreen({ navigation }: RootTabScreenProps<'Tracke
     return summary;
 
   }, { totalTime: 0, completedTasks: {}, uncompletedTasks: {} });
-  console.log(summaryData);
+
+
+  React.useEffect(() => {
+    dispatch(setCurrentTab('Summary'));
+  })
 
   return (
     <View style={styles.container}>

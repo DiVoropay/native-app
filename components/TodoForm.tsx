@@ -26,7 +26,14 @@ export default function TodoForm ({ path, textTask, updateTextTask, saveTask }: 
         {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
           <View style={styles.inner}>
             <Text style={styles.header}>ToDo for day</Text>
-            <TextInput placeholder="New task" style={styles.textInput} value={textTask} onChangeText={updateTextTask} onSubmitEditing={saveTask} />
+            <TextInput
+              placeholder="New task"
+              style={styles.textInput}
+              value={textTask}
+              onChangeText={updateTextTask}
+              onSubmitEditing={saveTask}
+              importantForAutofill={'yes'}
+            />
             <View style={styles.btnContainer}>
               <Button title="Add task" onPress={saveTask} />
             </View>

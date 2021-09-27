@@ -6,14 +6,29 @@ import { Text, View } from '../components/Themed';
 import TodoForm from '../components/TodoForm';
 import { RootTabScreenProps } from '../types';
 
-import { selectToday, startTodayTimer, pauseTodayTimer, stopTodayTimer, setTodayTime, setTodayTimer, updateTodayTime, setTodayIsStoping, ITask, setTodayTextTask, setTodayTasks } from '../store/slices/todaySlice';
+import {
+  selectToday,
+  startTodayTimer,
+  pauseTodayTimer,
+  stopTodayTimer,
+  setTodayTime,
+  setTodayTimer,
+  updateTodayTime,
+  setTodayIsStoping,
+  ITask,
+  setTodayTextTask,
+  setTodayTasks,
+} from '../store/slices/todaySlice';
 import TodoListItem from '../components/TodoListItem';
 import { ITrackedDay, setTrackedDays } from '../store/slices/trackedDaysSlice';
 
 import secondsToDigitalClock from '../utils/secondsToDigitalClock'
+import { setCurrentTab } from '../store/slices/appSlice';
 
 export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>) {
   const dispatch = useDispatch();
+
+  const todayState = useSelector(selectToday);
   const {
     currentCountTime,
     time,
@@ -24,7 +39,7 @@ export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>)
     textTask,
     tasks,
     timer,
-  } = useSelector(selectToday);
+  } = todayState;
 
   function updateTimer() {
     const newTimer = setInterval(() => dispatch(updateTodayTime()), 1000);
@@ -84,6 +99,10 @@ export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>)
   useEffect(() => {
     isStarting ? updateTimer() : clearInterval(timer);
   },[ isStarting ]);
+
+  useEffect(() => {
+    dispatch(setCurrentTab('Today'));
+  })
 
 
   return (

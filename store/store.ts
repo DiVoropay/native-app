@@ -1,10 +1,12 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
+import appReducer from './slices/appSlice';
 import todayReducer from './slices/todaySlice';
 import trackedDaysReducer from './slices/trackedDaysSlice'
 
 export const store = configureStore({
   reducer: {
+    app: appReducer,
     today: todayReducer,
     trackedDays: trackedDaysReducer,
   },

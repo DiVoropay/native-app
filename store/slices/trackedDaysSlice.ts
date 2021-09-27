@@ -31,17 +31,12 @@ const storeTrackedDays = async (value: ITrackedDaysState) => {
 const getStoreTrackedDays = async () => {
   try {
     const jsonValue: string | null = await AsyncStorage.getItem('state-tracked-days')
-    if (jsonValue != null) {
-      initialState = JSON.parse(jsonValue);
-    }
     return jsonValue != null ? JSON.parse(jsonValue) : null;
   } catch(e) {
     // saving error
   }
 }
 
-
-//const localTrackedDaysState: ITrackedDaysState = JSON.parse(AsyncStorage.getItem('state-tracked-days') || 'null');
 
 export const trackedDaysSlice = createSlice({
   name: 'trackedDays',
@@ -53,17 +48,31 @@ export const trackedDaysSlice = createSlice({
       }
       state.days = { ...state.days, ...newDay }
     },
+    setAllTrackedDaysState: (state, action: PayloadAction<ITrackedDaysState>) => {
+      state.days = action.payload.days;
+    }
   }
 })
 
 export const {
   setTrackedDays,
+  setAllTrackedDaysState,
 } = trackedDaysSlice.actions;
 
+export const getTrackedDaysStorageState = (): AppThunk => async (
+  dispatch,
+) => {
+  getStoreTrackedDays()
+    .then(storageState => dispatch(setAllTrackedDaysState(storageState)));
+};
+
+export const setTrackedDaysStorageState = (state: ITrackedDaysState): AppThunk => async (
+  dispatch,
+) => {
+  storeTrackedDays(state);
+};
+
 export const selectTrackedDays = (state: RootState) => {
-  
-  //AsyncStorage.setItem('state-tracked-days', JSON.stringify(state.trackedDays));
-  storeTrackedDays(state.trackedDays);
   return state.trackedDays;
 }
 
