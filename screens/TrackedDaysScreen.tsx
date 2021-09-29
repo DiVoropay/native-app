@@ -10,7 +10,7 @@ import { ITrackedDay, selectTrackedDays, setTrackedDays } from '../store/slices/
 import { RootTabScreenProps } from '../types';
 import secondsToDigitalClock from '../utils/secondsToDigitalClock';
 import DayItem from '../components/DayItem';
-import { setCurrentTab } from '../store/slices/appSlice';
+import { setAppCurrentTab } from '../store/slices/appSlice';
 
 export default function TrackedDaysScreen({ navigation }: RootTabScreenProps<'TrackedDays'>) {
   const dispatch = useDispatch();
@@ -19,13 +19,12 @@ export default function TrackedDaysScreen({ navigation }: RootTabScreenProps<'Tr
   const { days } = trackedDaysState;
 
   const changeDay = (day: ITrackedDay) => {
-    console.log(day)
     dispatch(setTrackedDays(day));
   }
 
   useEffect(() => {
-    dispatch(setCurrentTab('TrackedDays'));
-  })
+    dispatch(setAppCurrentTab('TrackedDays'));
+  },[])
 
   return (
     <View style={styles.container}>

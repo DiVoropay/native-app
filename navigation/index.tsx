@@ -1,8 +1,3 @@
-/**
- * If you are not familiar with React Navigation, refer to the "Fundamentals" guide:
- * https://reactnavigation.org/docs/getting-started
- *
- */
 import { FontAwesome } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -12,26 +7,27 @@ import { ColorSchemeName, Pressable, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Colors from '../constants/Colors';
-import useColorScheme from '../hooks/useColorScheme';
-import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import SummaryScreen from '../screens/SummaryScreen';
 import TodayScreen from '../screens/TodayScreen';
 import TrackedDaysScreen from '../screens/TrackedDaysScreen';
-import { getAppStorageState, selectApp, setAppStorageState } from '../store/slices/appSlice';
+import { getAppStorageState, selectApp, setAppStorageState, setAppTheme } from '../store/slices/appSlice';
 import { getTodayStorageState, selectToday, setTodayStorageState } from '../store/slices/todaySlice';
 import { getTrackedDaysStorageState, selectTrackedDays, setTrackedDaysStorageState } from '../store/slices/trackedDaysSlice';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import secondsToDigitalClock from '../utils/secondsToDigitalClock';
 import LinkingConfiguration from './LinkingConfiguration';
+import SettingsScreen from '../screens/SettingsScreen';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   const dispatch= useDispatch();
 
   const appState = useSelector(selectApp);
+  const { autoTheme, theme } = appState;
   const todayState = useSelector(selectToday);
   const trackedDaysState = useSelector(selectTrackedDays);
-    
+ 
   useEffect(() => {
     dispatch(getAppStorageState());
     dispatch(getTodayStorageState());
@@ -50,13 +46,20 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
     dispatch(setTrackedDaysStorageState(trackedDaysState));
   },[trackedDaysState]);
 
+  useEffect(() => {
+    if (appState.autoTheme && colorScheme) {
+      dispatch(setAppTheme(colorScheme))
+    }
+  },[colorScheme, autoTheme]);
+
 
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+      theme={theme === 'dark' ? DarkTheme : DefaultTheme}
     >
       <RootNavigator />
+      <StatusBar style={theme === 'dark' ? 'light' : 'dark' } />
     </NavigationContainer>
   );
 }
@@ -72,8 +75,8 @@ function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+      <Stack.Group screenOptions={{ presentation: 'transparentModal' }}>
+        <Stack.Screen name="Settings" component={SettingsScreen}  />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -86,15 +89,14 @@ function RootNavigator() {
 const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
 function BottomTabNavigator() {
-  const colorScheme = useColorScheme();
   const { time } = useSelector(selectToday);
-  const { currentTab } = useSelector(selectApp);
+  const { currentTab, theme } = useSelector(selectApp);
 
   return (
     <BottomTab.Navigator
       initialRouteName={currentTab || "Today"}
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarActiveTintColor: Colors[theme].tint,
       }}
     >
       <BottomTab.Screen
@@ -105,14 +107,14 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="tasks" color={color} />,
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate('Modal')}
+              onPress={() => navigation.navigate('Settings')}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
               })}>
               <FontAwesome
-                name="info-circle"
+                name="sliders"
                 size={25}
-                color={Colors[colorScheme].text}
+                color={Colors[theme].text}
                 style={{ marginRight: 15 }}
               />
             </Pressable>

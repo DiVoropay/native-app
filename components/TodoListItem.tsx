@@ -1,11 +1,10 @@
-import Checkbox from 'expo-checkbox';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import Colors from '../constants/Colors';
 import { Task } from '../types';
 import { MonoText } from './StyledText';
-import { Text, View } from './Themed';
+import { Text, View, Checkbox } from './Themed';
 
 export default function TodoListItem ({ task, updateTask }: { task: Task, updateTask: any }, ) {
 
@@ -14,8 +13,8 @@ export default function TodoListItem ({ task, updateTask }: { task: Task, update
   }
 
   return (
-    <TouchableOpacity style={styles.task}>
-      <Checkbox value={task.isCompleted} onChange={handleChange} />
+    <TouchableOpacity style={styles.task}  onPress={handleChange}>
+      <Checkbox status={task.isCompleted ? 'checked' : 'unchecked'} />
       <Text style={ [styles.text,  task.isCompleted ? styles.completed : {}]}>{task.text}</Text>
     </TouchableOpacity>   
   );
@@ -24,9 +23,9 @@ export default function TodoListItem ({ task, updateTask }: { task: Task, update
 const styles = StyleSheet.create({
   task: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     color: '#2cf',
-    margin: 5,
+    marginTop: 15,
   },
   text: {
     marginLeft: 10,

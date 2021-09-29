@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { Button, FlatList, Pressable, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -18,12 +18,14 @@ import {
   ITask,
   setTodayTextTask,
   setTodayTasks,
+  ITasks,
+  setTodayInputTasksList,
 } from '../store/slices/todaySlice';
 import TodoListItem from '../components/TodoListItem';
-import { ITrackedDay, setTrackedDays } from '../store/slices/trackedDaysSlice';
+import { ITrackedDay, selectTrackedDays, setTrackedDays } from '../store/slices/trackedDaysSlice';
 
 import secondsToDigitalClock from '../utils/secondsToDigitalClock'
-import { setCurrentTab } from '../store/slices/appSlice';
+import { setAppCurrentTab } from '../store/slices/appSlice';
 
 export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>) {
   const dispatch = useDispatch();
@@ -38,8 +40,11 @@ export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>)
     isPaused,
     textTask,
     tasks,
+    inputTasksList,
     timer,
   } = todayState;
+
+  const { days } = useSelector(selectTrackedDays);
 
   function updateTimer() {
     const newTimer = setInterval(() => dispatch(updateTodayTime()), 1000);
@@ -69,7 +74,7 @@ export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>)
     }
   }
 
-  function handleInputTextTask(text: string):void {
+  function handleInputTextTask(text: string): void {
     dispatch(setTodayTextTask(text));
   }
 
@@ -89,20 +94,35 @@ export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>)
   }
 
   useEffect(() => {
+    const summaryTasks: ITasks = Object.values(days).reduce((summary: any, day: ITrackedDay) => {
+      Object.values(day.tasks).forEach(task => {
+        if (
+          task.text.toLowerCase() !== textTask.toLowerCase()
+          && task.text.toLowerCase().includes(textTask.toLowerCase())
+        ) {
+          summary[task.id] = task;
+        }
+      }
+      );
+      return { ...summary }
+    }, {});
+    dispatch(setTodayInputTasksList(summaryTasks))
+  }, [textTask])
+
+  useEffect(() => {
     if (isStoping && time) {
       dispatch(setTodayTime(0));
-      dispatch(setTodayIsStoping(false));      
+      dispatch(setTodayIsStoping(false));
     }
-    
-  },[ time, isStoping ]);
+  }, [time, isStoping]);
 
   useEffect(() => {
     isStarting ? updateTimer() : clearInterval(timer);
-  },[ isStarting ]);
+  }, [isStarting]);
 
   useEffect(() => {
-    dispatch(setCurrentTab('Today'));
-  })
+    dispatch(setAppCurrentTab('Today'));
+  }, [])
 
 
   return (
@@ -114,9 +134,9 @@ export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>)
       <View style={styles.row}>
         <Button title="Start" onPress={startTimer} disabled={isStarting || isPaused} />
         <Button title={!isPaused ? 'Pause' : 'Continue'} onPress={pauseTimer} disabled={isStoping || (!isStarting && !isPaused)} />
-        <Button title="Stop" onPress={stopTimer} disabled={isStoping || (!isStarting && !isPaused) } />
+        <Button title="Stop" onPress={stopTimer} disabled={isStoping || (!isStarting && !isPaused)} />
       </View>
-      
+
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <View style={styles.container}>
         <TodoForm
@@ -124,20 +144,23 @@ export default function TodayScreen({ navigation }: RootTabScreenProps<'Today'>)
           textTask={textTask}
           updateTextTask={handleInputTextTask}
           saveTask={handleAddTask}
-        />
-        <View style={styles.list}>
-          {Object.keys(tasks).length
+          listTasks={inputTasksList}
+        >
+          <View style={styles.list}>
+            {Object.keys(tasks).length
               ? <FlatList
-                  data={Object.values(tasks)}
-                  keyExtractor={item => item.id.toString()}
-                  renderItem={({item}) => 
-                    <TodoListItem task={item} updateTask={handleUpdateTask} />
-                  }
-                />
+                data={Object.values(tasks)}
+                keyExtractor={item => item.id.toString()}
+                renderItem={({ item }) =>
+                  <TodoListItem task={item} updateTask={handleUpdateTask} />
+                }
+              />
               : <Text>No tasks for today</Text>
-          }
-        </View>
-      </View>   
+            }
+          </View>
+        </TodoForm>
+
+      </View>
     </View>
   );
 }

@@ -3,17 +3,20 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppDispatch, AppThunk, RootState } from '../store';
 
 export type ITab = "TrackedDays" | "Today" | "Summary";
+export type ITheme = 'dark' | 'light';
 
 export interface IAppState {
   isLoading: boolean;
   currentTab?: ITab;
-  theme: string;
+  autoTheme: boolean;
+  theme: ITheme;
 }
 
 let initialState: IAppState = {
   isLoading: false,
   // currentTab: 'TrackedDays',
-  theme: '',
+  autoTheme: true,
+  theme: 'light',
 }
 
 const storeToday = async (value: IAppState) => {
@@ -38,29 +41,34 @@ export const appSlice = createSlice({
   name: 'app',
   initialState: initialState,
   reducers: {
-    setIsLoading: (state, action: PayloadAction<boolean>) => {
+    setAppIsLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
-    setCurrentTab: (state, action: PayloadAction<ITab>) => {
+    setAppCurrentTab: (state, action: PayloadAction<ITab>) => {
       state.currentTab = action.payload;
     },
-    setTheme: (state, action: PayloadAction<string>) => {
+    setAppAutoTheme: (state, action: PayloadAction<boolean>) => {
+      state.autoTheme = action.payload;
+    },
+    setAppTheme: (state, action: PayloadAction<ITheme>) => {
       state.theme = action.payload;
     },
-    setAllAppState: (state, action: PayloadAction<IAppState>) => {
+    setAppAllState: (state, action: PayloadAction<IAppState>) => {
       state.isLoading = action.payload.isLoading;
       state.currentTab = action.payload.currentTab;
+      state.autoTheme = action.payload.autoTheme;
       state.theme = action.payload.theme;
     },
   }
 })
 
 export const {
-  setIsLoading,
-  setCurrentTab,
-  setTheme,
+  setAppIsLoading,
+  setAppCurrentTab,
+  setAppAutoTheme,
+  setAppTheme,
 
-  setAllAppState,
+  setAppAllState,
   
 } = appSlice.actions;
 
@@ -68,7 +76,7 @@ export const getAppStorageState = (): AppThunk => async (
   dispatch,
 ) => {
   getStoreToday()
-    .then(storageState => dispatch(setAllAppState(storageState)));
+    .then(storageState => storageState && dispatch(setAppAllState(storageState)));
 };
 
 export const setAppStorageState = (state: IAppState): AppThunk => async (

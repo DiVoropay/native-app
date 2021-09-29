@@ -8,6 +8,10 @@ export interface ITask {
   isCompleted: boolean; 
 }
 
+export interface ITasks {
+  id?: ITask
+}
+
 export interface ITodayState {
   currentCountTime: number;
   time: number;
@@ -17,7 +21,8 @@ export interface ITodayState {
   isPaused: boolean;
   timer: any;
   textTask: string;
-  tasks: { id: ITask } | {};
+  tasks: ITasks;
+  inputTasksList: ITasks;
 }
 
 let initialState: ITodayState = {
@@ -30,6 +35,7 @@ let initialState: ITodayState = {
   timer: 0,
   textTask: '',
   tasks: {},
+  inputTasksList: {},
 }
 
 const storeToday = async (value: ITodayState) => {
@@ -81,8 +87,11 @@ export const todaySlice = createSlice({
       }
       state.tasks = { ...state.tasks, ...newTask };
     },
+    setTodayInputTasksList: (state, action: PayloadAction<ITasks>) => {
+      state.inputTasksList = action.payload;
+    },
     setTodayTimer: (state, action: PayloadAction<any>) => {
-      state.timer = action.payload
+      state.timer = action.payload;
     },
 
     setAllTodayState: (state, action: PayloadAction<ITodayState>) => {
@@ -92,6 +101,7 @@ export const todaySlice = createSlice({
       state.textTask = action.payload.textTask;
       state.timer = action.payload.timer;
       state.tasks = { ...state.tasks, ...action.payload.tasks };
+      state.inputTasksList = action.payload.inputTasksList;
       state.isStarting = action.payload.isStarting;
       state.isStoping = action.payload.isStoping;
       state.isPaused = action.payload.isPaused;
@@ -133,6 +143,7 @@ export const {
   setTodayCurrentCountTime,
   setTodayTextTask,
   setTodayTasks,
+  setTodayInputTasksList,
   setTodayTimer,
 
   setAllTodayState,

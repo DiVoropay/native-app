@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import TodoListItem from '../components/TodoListItem';
-import { setCurrentTab } from '../store/slices/appSlice';
+import { setAppCurrentTab } from '../store/slices/appSlice';
 import { ITask } from '../store/slices/todaySlice';
 import { ITrackedDay, selectTrackedDays } from '../store/slices/trackedDaysSlice';
 import { RootTabScreenProps } from '../types';
@@ -34,8 +34,8 @@ export default function SummaryScreen({ navigation }: RootTabScreenProps<'Tracke
 
 
   React.useEffect(() => {
-    dispatch(setCurrentTab('Summary'));
-  })
+    dispatch(setAppCurrentTab('Summary'));
+  },[])
 
   return (
     <View style={styles.container}>
