@@ -20,16 +20,16 @@ export default function DayItem({ day, updateDay }: { day: ITrackedDay, updateDa
   const [editingDay, setEditingDay] = useState(false);
 
   function handleChangeDate(event: any, date: Date | undefined): void {
-    date && updateDay({ ...day, date: date.getTime() })
     setEditingDate(false);
+    date && updateDay({ ...day, date: date.getTime() })  
   }
 
   function handleChangeTime(event: any, date: Date | undefined): void {
+    setEditingTime(false);
     if (date) {
       const timeOfSeconds = date.getHours() * 60 * 60 + date.getMinutes() * 60;
       updateDay({ ...day, totalTime: timeOfSeconds })
     }
-    setEditingTime(false);
   }
 
   return (
@@ -86,7 +86,7 @@ export default function DayItem({ day, updateDay }: { day: ITrackedDay, updateDa
             data={Object.values(day.tasks)}
             keyExtractor={item => item.id.toString()}
             renderItem={({ item }) =>
-              <TodoListItem task={item} updateTask={() => { }} />
+              <TodoListItem task={item} updateTask={() => false} disabled={true} />
             }
           />
           : <Text style={styles.title}>No tasks for day</Text>
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline'
   },
   list: {
+    
   },
   separator: {
     marginVertical: 20,

@@ -3,12 +3,12 @@ import * as React from 'react';
 import { Platform, StyleSheet, Switch } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectApp, setAppAutoTheme, setAppTheme } from '../store/slices/appSlice';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
+import Colors from '../constants/Colors';
 
 export default function SettingsScreen({navigation}: any) {
   const dispatch = useDispatch();
@@ -61,7 +61,7 @@ export default function SettingsScreen({navigation}: any) {
         </Text>
       </View>
       <TouchableOpacity style={styles.buttonWithIcon} onPress={() => navigation.goBack()}>
-        <FontAwesome name='arrow-left' />
+        <FontAwesome name='arrow-left' color={Colors[theme].text} />
         <Text style={styles.buttonText}>Go back</Text>
       </TouchableOpacity>
 

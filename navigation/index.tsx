@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
-import { ColorSchemeName, Pressable, Text } from 'react-native';
+import { ColorSchemeName, ImageBackground, Pressable, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Colors from '../constants/Colors';
@@ -21,36 +21,36 @@ import SettingsScreen from '../screens/SettingsScreen';
 import { StatusBar } from 'expo-status-bar';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
 
   const appState = useSelector(selectApp);
   const { autoTheme, theme } = appState;
   const todayState = useSelector(selectToday);
   const trackedDaysState = useSelector(selectTrackedDays);
- 
+
   useEffect(() => {
     dispatch(getAppStorageState());
     dispatch(getTodayStorageState());
     dispatch(getTrackedDaysStorageState());
-  },[]);
+  }, []);
 
   useEffect(() => {
     dispatch(setAppStorageState(appState));
-  },[appState]);
-  
+  }, [appState]);
+
   useEffect(() => {
     dispatch(setTodayStorageState(todayState));
-  },[todayState]);
+  }, [todayState]);
 
   useEffect(() => {
     dispatch(setTrackedDaysStorageState(trackedDaysState));
-  },[trackedDaysState]);
+  }, [trackedDaysState]);
 
   useEffect(() => {
     if (appState.autoTheme && colorScheme) {
       dispatch(setAppTheme(colorScheme))
     }
-  },[colorScheme, autoTheme]);
+  }, [colorScheme, autoTheme]);
 
 
   return (
@@ -59,7 +59,7 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
       theme={theme === 'dark' ? DarkTheme : DefaultTheme}
     >
       <RootNavigator />
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark' } />
+      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
     </NavigationContainer>
   );
 }
@@ -72,13 +72,15 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   return (
+    // <ImageBackground source={{ uri: 'https://websailors.pro/wp-content/uploads/2021/04/ws-back-img-main.png'}} style={{height: '100%', width: '100%'}}>
     <Stack.Navigator>
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'transparentModal' }}>
-        <Stack.Screen name="Settings" component={SettingsScreen}  />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Group>
     </Stack.Navigator>
+    // </ImageBackground>
   );
 }
 
@@ -92,13 +94,28 @@ function BottomTabNavigator() {
   const { time } = useSelector(selectToday);
   const { currentTab, theme } = useSelector(selectApp);
 
-  return (
+  return (    
     <BottomTab.Navigator
       initialRouteName={currentTab || "Today"}
       screenOptions={{
         tabBarActiveTintColor: Colors[theme].tint,
+        tabBarLabelStyle: { marginVertical: 5 },
+        tabBarStyle: {
+          position: 'absolute',
+          justifyContent: 'space-around',
+          backgroundColor: theme === 'dark' ? '#222c' : '#fffc',
+          borderTopWidth: 0,
+          borderRadius: 30,
+          bottom: '2%',
+          left: '15%',
+          right: '15%',
+          padding: 10,
+          shadowRadius: 5,
+          shadowColor: '#666c',
+          height: 60,
+        },
       }}
-    >
+      >
       <BottomTab.Screen
         name="Today"
         component={TodayScreen}
@@ -107,20 +124,21 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="tasks" color={color} />,
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate('Settings')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
+            onPress={() => navigation.navigate('Settings')}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.5 : 1,
+            })}>
               <FontAwesome
                 name="sliders"
                 size={25}
                 color={Colors[theme].text}
                 style={{ marginRight: 15 }}
-              />
+                />
             </Pressable>
           ),
+          
         })}
-      />
+        />
       <BottomTab.Screen
         name="TrackedDays"
         component={TrackedDaysScreen}
@@ -130,16 +148,16 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="table" color={color} />,
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate('Today')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <Text style={{marginRight: 10, fontSize: 18, fontWeight: 'bold', color: '#2cf'}}>Today: {secondsToDigitalClock(time)}</Text>
+            onPress={() => navigation.navigate('Today')}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.5 : 1,
+            })}>
+              <Text style={{ marginRight: 10, fontSize: 18, fontWeight: 'bold', color: '#2cf' }}>Today: {secondsToDigitalClock(time)}</Text>
             </Pressable>
           ),
         })}
-      />
-       <BottomTab.Screen
+        />
+      <BottomTab.Screen
         name="Summary"
         component={SummaryScreen}
         options={({ navigation }: RootTabScreenProps<'Summary'>) => ({
@@ -147,15 +165,15 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="history" color={color} />,
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate('Today')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <Text style={{marginRight: 10, fontSize: 18, fontWeight: 'bold', color: '#2cf'}}>Today: {secondsToDigitalClock(time)}</Text>
+            onPress={() => navigation.navigate('Today')}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.5 : 1,
+            })}>
+              <Text style={{ marginRight: 10, fontSize: 18, fontWeight: 'bold', color: '#2cf' }}>Today: {secondsToDigitalClock(time)}</Text>
             </Pressable>
           ),
         })}
-      />
+        />
     </BottomTab.Navigator>
   );
 }

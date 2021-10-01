@@ -24,7 +24,7 @@ export default function TodoForm({ path, textTask, updateTextTask, saveTask, lis
 
   return (
     <>
-      <KeyboardAvoidingView
+      <KeyboardAvoidingView style={styles.inner}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
@@ -41,6 +41,7 @@ export default function TodoForm({ path, textTask, updateTextTask, saveTask, lis
                 onSubmitEditing={saveTask}
                 keyboardShouldPersistTaps = 'always'
                 flatListProps={{
+                  scrollEnabled: true,
                   keyExtractor: (item, id) => item ? item.id.toString() : id,
                   renderItem: ({ item }) =>
                     <TouchableOpacity onPress={() => updateTextTask(item.text)}>
@@ -57,7 +58,7 @@ export default function TodoForm({ path, textTask, updateTextTask, saveTask, lis
               />
             </View>
             <View style={styles.btnContainer}>
-              <Button title="Add task" onPress={saveTask} disabled={!textTask} />
+              <Button title="Add task" onPress={saveTask} disabled={!textTask.trim()} />
             </View>
             {children}
           </View>
@@ -75,10 +76,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   inner: {
-    padding: 10,
+    paddingTop: 10,
     //flex: 1,
     justifyContent: "flex-start",
     width: 300,
+    backgroundColor: 'transparent',
   },
   header: {
     fontSize: 20,
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   btnContainer: {
-    backgroundColor: "white",
+    backgroundColor: 'transparent',
     marginTop: 35,
   },
   autocompleteContainer: {

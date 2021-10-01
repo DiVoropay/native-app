@@ -9,7 +9,7 @@ export interface ITask {
 }
 
 export interface ITasks {
-  id?: ITask
+  [key: number]: ITask
 }
 
 export interface ITodayState {
@@ -23,6 +23,7 @@ export interface ITodayState {
   textTask: string;
   tasks: ITasks;
   inputTasksList: ITasks;
+  editingTask: ITask | undefined;
 }
 
 let initialState: ITodayState = {
@@ -36,6 +37,7 @@ let initialState: ITodayState = {
   textTask: '',
   tasks: {},
   inputTasksList: {},
+  editingTask: undefined,
 }
 
 const storeToday = async (value: ITodayState) => {
@@ -93,6 +95,12 @@ export const todaySlice = createSlice({
     setTodayTimer: (state, action: PayloadAction<any>) => {
       state.timer = action.payload;
     },
+    setEditingTask: (state, action: PayloadAction<any>) => {
+      state.editingTask = action.payload;
+    },
+    setTodayDeleteTask: (state, action: PayloadAction<any>) => {
+      delete state.tasks[action.payload]
+    },
 
     setAllTodayState: (state, action: PayloadAction<ITodayState>) => {
       state.currentCountTime = action.payload.currentCountTime;
@@ -145,6 +153,8 @@ export const {
   setTodayTasks,
   setTodayInputTasksList,
   setTodayTimer,
+  setEditingTask,
+  setTodayDeleteTask,
 
   setAllTodayState,
 
